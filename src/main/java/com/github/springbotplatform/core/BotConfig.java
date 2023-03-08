@@ -2,6 +2,7 @@ package com.github.springbotplatform.core;
 
 import org.springframework.context.annotation.Configuration;
 
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 
 @Configuration
@@ -20,7 +21,7 @@ public class BotConfig {
     }
 
     public void putInMenu(String menuName, String menuDescription) {
-        menuMap.put("/" + menuName, menuDescription);
+        menuMap.put("/" + menuName, new String(menuDescription.getBytes(), StandardCharsets.UTF_8));
     }
 
 }

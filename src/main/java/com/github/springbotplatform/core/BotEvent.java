@@ -44,6 +44,15 @@ public class BotEvent implements BotUserInterface {
         botCore.sendMessage(update.getMessage().getChatId(), textToSend, buttonListMap);
     }
 
+    /**
+     * Send text message with 1 dimension buttons
+     * @param textToSend - text of message
+     * @param buttonMap - 1 dimension button on message
+     */
+    public void sendMessage(String textToSend, Map<String, String> buttonMap) {
+        botCore.sendMessage(update.getMessage().getChatId(), textToSend, buttonMap);
+    }
+
     public String getMenuName() {
 
         String testMessage = this.getText();

@@ -11,6 +11,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -70,6 +71,25 @@ public class BotCore {
 
     }
 
+    public void sendMessage(long chatID, String testToSend, Map<String, String> buttonMap) {
+        SendMessage message = new SendMessage();
+        message.setChatId(String.valueOf(chatID));
+        message.setText(testToSend);
+        attachButtons(message, buttonMap);
+
+//        try {
+//            sendExecute(bot, message);
+//        } catch (TelegramApiException e) {
+//
+//        }
+        try {
+            //TODO make dispatch queue
+            this.botTelegram.execute(message);
+        } catch (TelegramApiException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     protected static void attachButtons(SendMessage message, List<Map<String, String>> buttons) {
         InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
 
@@ -94,6 +114,29 @@ public class BotCore {
         }
 
 
+        markup.setKeyboard(keyboard);
+        message.setReplyMarkup(markup);
+    }
+
+    /**
+     * Appending 1 dimension button list to message.
+     * @param message
+     * @param buttons
+     */
+    protected void attachButtons(SendMessage message, Map<String, String> buttons) {
+        InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
+
+        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+
+        for (String buttonName : buttons.keySet()) {
+            String buttonValue = buttons.get(buttonName);
+
+            InlineKeyboardButton button = new InlineKeyboardButton();
+            button.setText(new String(buttonName.getBytes(), StandardCharsets.UTF_8));
+            button.setCallbackData(buttonValue);
+
+            keyboard.add(Arrays.asList(button));
+        }
         markup.setKeyboard(keyboard);
         message.setReplyMarkup(markup);
     }
