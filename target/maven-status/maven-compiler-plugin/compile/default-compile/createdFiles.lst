@@ -1,4 +1,6 @@
+com\github\springbotplatform\core\BotEventClickStructure.class
 com\github\springbotplatform\core\BotEventProcessing.class
+com\github\springbotplatform\core\BotExclusion.class
 com\github\springbotplatform\core\BotInitializer.class
 com\github\springbotplatform\core\BotUserPKG\BotUserDataProcessing.class
 com\github\springbotplatform\core\BotUserPKG\BotUser.class
@@ -8,6 +10,7 @@ module-info.class
 com\github\springbotplatform\core\BotEventActionInterface.class
 com\github\springbotplatform\core\BotTelegram\BotTelegramLongPolling.class
 com\github\springbotplatform\core\BotConfig.class
+com\github\springbotplatform\core\BotException.class
 com\github\springbotplatform\core\REST_CORE.class
 com\github\springbotplatform\core\BotTelegram\BotTelegramConfig.class
 com\github\springbotplatform\core\BotUserPKG\BotUserInterface.class

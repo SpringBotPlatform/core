@@ -7,8 +7,11 @@ module core {
     requires spring.context;
     requires spring.web;
 
+    requires org.slf4j;
+
     requires telegrambots.meta;
     requires telegrambots;
+    requires lombok;
 //    requires lombok;
 
 

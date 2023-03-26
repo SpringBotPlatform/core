@@ -1,19 +1,20 @@
 package com.github.springbotplatform.core;
 
 import com.github.springbotplatform.core.BotUserPKG.BotUserDataProcessing;
+import lombok.Data;
+import lombok.Getter;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Component
 public class BotCore {
@@ -41,6 +42,59 @@ public class BotCore {
 
     }
 
+    public BotEventActionInterface getClickEvent(String eventID) {
+        return botConfig.getClickEvent(eventID);
+    }
+
+    public void sendEditMessage(long chatID, int messageID, String textToSend) {
+        EditMessageText message = new EditMessageText();
+
+        message.setChatId(String.valueOf(chatID));
+        message.setText(textToSend);
+        message.setMessageId(messageID);
+
+        try {
+            //TODO make dispatch queue
+            this.botTelegram.execute(message);
+        } catch (TelegramApiException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    public void sendEditMessage(long chatID, int messageID, String textToSend,  Map<String, String> buttonListMap) {
+        EditMessageText editMessage = new EditMessageText();
+
+        editMessage.setChatId(String.valueOf(chatID));
+        editMessage.setText(textToSend);
+        editMessage.setMessageId(messageID);
+        attachButtons(editMessage, buttonListMap);
+
+        try {
+            //TODO make dispatch queue
+            this.botTelegram.execute(editMessage);
+        } catch (TelegramApiException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    public void sendEditMessage(long chatID, int messageID, String textToSend,  List<TreeMap<String, String>> buttonListMap) {
+        EditMessageText editMessage = new EditMessageText();
+
+        editMessage.setChatId(String.valueOf(chatID));
+        editMessage.setText(textToSend);
+        editMessage.setMessageId(messageID);
+        attachButtons(editMessage, buttonListMap);
+
+        try {
+            //TODO make dispatch queue
+            this.botTelegram.execute(editMessage);
+        } catch (TelegramApiException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public void sendMessage(long chatID, String textToSend) {
         SendMessage message = new SendMessage();
 
@@ -56,7 +110,7 @@ public class BotCore {
 
     }
 
-    public void sendMessage(long chatID, String messageToSend, List<Map<String, String>> buttonListMap) {
+    public void sendMessage(long chatID, String messageToSend, List<TreeMap<String, String>> buttonListMap) {
         SendMessage message = new SendMessage();
         message.setChatId(String.valueOf(chatID));
         message.setText(messageToSend);
@@ -75,13 +129,9 @@ public class BotCore {
         SendMessage message = new SendMessage();
         message.setChatId(String.valueOf(chatID));
         message.setText(testToSend);
+
         attachButtons(message, buttonMap);
 
-//        try {
-//            sendExecute(bot, message);
-//        } catch (TelegramApiException e) {
-//
-//        }
         try {
             //TODO make dispatch queue
             this.botTelegram.execute(message);
@@ -90,7 +140,7 @@ public class BotCore {
         }
     }
 
-    protected static void attachButtons(SendMessage message, List<Map<String, String>> buttons) {
+    protected static void attachButtons(SendMessage message, List<TreeMap<String, String>> buttons) {
         InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
 
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
@@ -100,12 +150,10 @@ public class BotCore {
         for (Map<String, String> curLine : buttons) {
             keyboardButtonRow = new ArrayList();
 
-            for (String buttonName : curLine.keySet()) {
-                String buttonValue = curLine.get(buttonName);
-
+            for (Map.Entry<String, String> entry: curLine.entrySet()) {
                 InlineKeyboardButton button = new InlineKeyboardButton();
-                button.setText(new String(buttonName.getBytes(), StandardCharsets.UTF_8));
-                button.setCallbackData(buttonValue);
+                button.setCallbackData(entry.getKey());
+                button.setText(entry.getValue());
 
                 keyboardButtonRow.add(button);
             }
@@ -132,11 +180,65 @@ public class BotCore {
             String buttonValue = buttons.get(buttonName);
 
             InlineKeyboardButton button = new InlineKeyboardButton();
+            button.setText(buttonValue);
+            button.setCallbackData(buttonName);
+
+            keyboard.add(Arrays.asList(button));
+        }
+        markup.setKeyboard(keyboard);
+        message.setReplyMarkup(markup);
+    }
+
+    protected void attachButtons(EditMessageText message, Map<String, String> buttons) {
+        InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
+
+        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+
+        for (String buttonName : buttons.keySet()) {
+            String buttonValue = buttons.get(buttonName);
+
+            InlineKeyboardButton button = new InlineKeyboardButton();
             button.setText(new String(buttonName.getBytes(), StandardCharsets.UTF_8));
             button.setCallbackData(buttonValue);
 
             keyboard.add(Arrays.asList(button));
         }
+
+        markup.setKeyboard(keyboard);
+        message.setReplyMarkup(markup);
+    }
+
+    protected static void attachButtons(EditMessageText message, List<TreeMap<String, String>> buttons) {
+        InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
+
+        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+
+        List<InlineKeyboardButton> keyboardButtonRow;
+
+        for (Map<String, String> curLine : buttons) {
+            keyboardButtonRow = new ArrayList();
+
+            for (Map.Entry<String, String> entry: curLine.entrySet()) {
+                InlineKeyboardButton button = new InlineKeyboardButton();
+                button.setText(entry.getValue());
+                button.setCallbackData(entry.getKey());
+
+                keyboardButtonRow.add(button);
+            }
+
+//            for (String buttonName : curLine.keySet()) {
+//                String buttonValue = curLine.get(buttonName);
+//
+//                InlineKeyboardButton button = new InlineKeyboardButton();
+//                button.setText(new String(buttonName.getBytes(), StandardCharsets.UTF_8));
+//                button.setCallbackData(buttonValue);
+//
+//                keyboardButtonRow.add(button);
+//            }
+
+            keyboard.add(keyboardButtonRow);
+        }
+
         markup.setKeyboard(keyboard);
         message.setReplyMarkup(markup);
     }

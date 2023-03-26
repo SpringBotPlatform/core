@@ -1,6 +1,8 @@
 package com.github.springbotplatform.core;
 
 import com.github.springbotplatform.core.BotTelegram.BotTelegramLongPolling;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
@@ -19,6 +21,7 @@ public class BotInitializer {
 
     @EventListener({ContextRefreshedEvent.class})
     public void init() throws TelegramApiException {
+
         TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
 
         try {
