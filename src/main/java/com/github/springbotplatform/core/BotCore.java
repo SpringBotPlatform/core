@@ -1,10 +1,9 @@
 package com.github.springbotplatform.core;
 
 import com.github.springbotplatform.core.BotUserPKG.BotUserDataProcessing;
-import lombok.Data;
-import lombok.Getter;
+import com.vdurmont.emoji.EmojiParser;
+
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
@@ -15,6 +14,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+
 
 @Component
 public class BotCore {
@@ -96,10 +96,12 @@ public class BotCore {
     }
 
     public void sendMessage(long chatID, String textToSend) {
+        int aa = 4;
+
         SendMessage message = new SendMessage();
 
         message.setChatId(String.valueOf(chatID));
-        message.setText(textToSend);
+        message.setText(EmojiParser.parseToUnicode(textToSend));
 
         try {
             //TODO make dispatch queue

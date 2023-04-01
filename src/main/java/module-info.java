@@ -12,7 +12,8 @@ module core {
     requires telegrambots.meta;
     requires telegrambots;
     requires lombok;
-//    requires lombok;
+
+    requires emoji.java;
 
 
 }
